@@ -3,9 +3,9 @@
 #include <stdlib.h>
 #include <time.h>
 #include <string.h>
-#define N 200
-#define M 300
-#define STEPS 200
+//#define N 10
+//#define M 15
+//#define STEPS 100
 
 
 /*The Game of Life, also known simply as Life, is a cellular automaton devised by the British mathematician John Horton Conway in 1970.
@@ -25,6 +25,7 @@ The rules continue to be applied repeatedly to create further generations.
 m4.large
 */
 
+int N, M, STEPS;
 
 void matrixInit(char ** matrix_input){
 
@@ -84,6 +85,11 @@ int main(int argc, char** argv) {
 
     MPI_Init(&argc, &argv);
 
+    N = atoi(argv[1]);
+    M = atoi(argv[2]);
+    STEPS = atoi(argv[3]);
+
+
     struct {
         int dx;
         int dy;
@@ -113,7 +119,7 @@ int main(int argc, char** argv) {
     int mod = N % (world_size);
 
     int time = MPI_Wtime();
-
+ 
     if (world_rank == 0) {
 
         char **matrix = allocMatrix(N, M);
@@ -348,13 +354,13 @@ int main(int argc, char** argv) {
             sum += count/M;
         }
 
-        printf("\n\nMatrice Risultante\n");
+        /*printf("\nFinal Matrix\n");
         for (i = 0; i < N; i++) {
             for (j = 0; j < M; j++) {
                 printf("%c", final[i][j]);
             }
             printf("\n");
-        }
+        }*/
 
         free(matrix[0]);
         free(matrix);
