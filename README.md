@@ -1,1 +1,1 @@
-# mpi-parallel-game-of-life
+# MPI Parallel Game of Life
