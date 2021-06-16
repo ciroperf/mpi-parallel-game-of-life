@@ -114,7 +114,7 @@ int main(int argc, char** argv) {
         return 0;
     }
 
-    char buffer[N][M];
+    char **buffer = allocMatrix(N,M);
     int size = N / (world_size);
     int mod = N % (world_size);
 
@@ -164,6 +164,7 @@ int main(int argc, char** argv) {
             dest = i;
                         
             MPI_Send(&(out[0][0]), send*M, MPI_CHAR, dest, tag, MPI_COMM_WORLD);
+            free(out[0]);
             free(out);
             
         }
@@ -184,8 +185,8 @@ int main(int argc, char** argv) {
         }
 
         step = 0;
-        char final[N][M];
-        char temp[index[0]+2][M];
+        //char buffer[N][M];
+        char **temp = allocMatrix(index[0]+2, M);
         int interior = 0;
         k = 0;
 
@@ -210,7 +211,7 @@ int main(int argc, char** argv) {
             if (step != 0) {
                 for (i = 1; i < index[0]+1; i++) {
                     for (j = 0; j < M; j++) {
-                        temp[i][j] = final[k][j];
+                        temp[i][j] = buffer[k][j];
                     }
                     k++;
                 }
@@ -236,7 +237,7 @@ int main(int argc, char** argv) {
                                 }
                             }
                         }
-                        final[k][j] = cellChecker(temp[i][j], cells_alive, cells_dead);
+                        buffer[k][j] = cellChecker(temp[i][j], cells_alive, cells_dead);
                         cells_dead = 0;
                         cells_alive = 0;
                     }
@@ -279,7 +280,7 @@ int main(int argc, char** argv) {
                                 }
                             }
                         }
-                        final[k][j] = cellChecker(temp[1][j], cells_alive, cells_dead);
+                        buffer[k][j] = cellChecker(temp[1][j], cells_alive, cells_dead);
                         cells_dead = 0;
                         cells_alive = 0;
                 }
@@ -298,7 +299,7 @@ int main(int argc, char** argv) {
                                 }
                             }
                         }
-                        final[k][j] = cellChecker(temp[index[0]][j], cells_alive, cells_dead);
+                        buffer[k][j] = cellChecker(temp[index[0]][j], cells_alive, cells_dead);
                         cells_dead = 0;
                         cells_alive = 0;
                 }
@@ -318,7 +319,7 @@ int main(int argc, char** argv) {
                                 }
                             }
                         }
-                        final[k][j] = cellChecker(temp[i][j], cells_alive, cells_dead);
+                        buffer[k][j] = cellChecker(temp[i][j], cells_alive, cells_dead);
                         cells_dead = 0;
                         cells_alive = 0;
                     }
@@ -327,21 +328,25 @@ int main(int argc, char** argv) {
             }
 
             for (i = 0; i < M; i++) {
-                borders[0][i] = final[0][i];
+                borders[0][i] = buffer[0][i];
             }
         
             if (index[0] > 1) {                
                 for (i = 0; i < M; i++)
-                    borders[1][i] = final[index[0]-1][i];
+                    borders[1][i] = buffer[index[0]-1][i];
             } else {
                 for (i = 0; i < M; i++)
-                    borders[1][i] = final[0][i];
+                    borders[1][i] = buffer[0][i];
             }
 
             step++;
 
             if (step >= STEPS) {
+                free(temp[0]);
+                free(temp);
+                free(borders[0]);
                 free(borders);
+                free(borders_received[0]);
                 free(borders_received);
                 break;
             }
@@ -349,19 +354,21 @@ int main(int argc, char** argv) {
 
         int sum = index[0];
         for (i = 1; i < world_size; i++) {
-            MPI_Recv(&final[sum][0], N*M, MPI_CHAR, i, tag, MPI_COMM_WORLD, &status);
+            MPI_Recv(&buffer[sum][0], N*M, MPI_CHAR, i, tag, MPI_COMM_WORLD, &status);
             rc = MPI_Get_count(&status, MPI_CHAR, &count);
             sum += count/M;
         }
 
-        /*printf("\nFinal Matrix\n");
+        /*printf("final Matrix\n");
         for (i = 0; i < N; i++) {
             for (j = 0; j < M; j++) {
-                printf("%c", final[i][j]);
+                printf("%c", buffer[i][j]);
             }
             printf("\n");
         }*/
 
+        free(buffer[0]);
+        free(buffer);
         free(matrix[0]);
         free(matrix);
 
@@ -392,7 +399,7 @@ int main(int argc, char** argv) {
         if (world_rank == world_size-1)
             dest = 0;
 
-        char temp[n+2][M];
+        char **temp = allocMatrix(n+2, M);
 
         while(1) {
 
@@ -413,6 +420,8 @@ int main(int argc, char** argv) {
 
             int d, x, y;
             k = 1;
+
+            //update interior portion
 
             if(n > 2) {
                 interior = 1;
@@ -437,7 +446,7 @@ int main(int argc, char** argv) {
                 }
             }
 
-            //update  borders
+            //update borders
 
             MPI_Wait(&request_receive, &status);
             MPI_Wait(&request_receive1, &status);
@@ -539,7 +548,13 @@ int main(int argc, char** argv) {
             if (step >= STEPS) {
                 tag = 1;
                 MPI_Send(&(buffer[0][0]), n*M, MPI_CHAR, 0, tag, MPI_COMM_WORLD);
+                free(temp[0]);
+                free(temp);
+                free(buffer[0]);
+                free(buffer);
+                free(borders[0]);
                 free(borders);
+                free(borders_received[0]);
                 free(borders_received);
                 break;
             }
