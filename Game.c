@@ -568,6 +568,6 @@ int main(int argc, char** argv) {
 
     if (world_rank == 0) {
         printf("\nEnded\n");
-        printf("Time: %1.2f\n", etime);
+        printf("Time: %1.3f\n", etime);
     }
 }
