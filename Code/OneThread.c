@@ -2,17 +2,9 @@
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
-#define N 200
-#define M 300
-#define STEPS 200
-/*
-This version of the program runs game of life, locally with a single thread
-
-- Any live cell with fewer than **2** live neighbors dies as if caused by underpopulation.
-- Any live cell with **2** or **3** live neighbors lives on to the next generation.
-- Any live cell with more than **3** live neighbors dies, as if by overpopulation.
-- Any dead cell with exactly **3** live neighbors becomes a live cell, as if by reproduction.
-*/
+#define N 3000
+#define M 3300
+#define STEPS 300
 
 char cellChecker(char current_cell, int alive, int dead) {
     char out;
@@ -34,6 +26,15 @@ char cellChecker(char current_cell, int alive, int dead) {
     return out;
 }
 
+char **allocMatrix(int rows, int cols) {
+    char *data = (char *)malloc(rows*cols*sizeof(char));
+    char **matrix= (char **)malloc(rows*sizeof(char*));
+    for (int i=0; i<rows; i++)
+        matrix[i] = &(data[cols*i]);
+
+    return matrix;
+}
+
 int isInMatrix(int x, int y) {
 
     if ((x >= 0 && x < N) && (y >= 0 && y < M))
@@ -45,8 +46,8 @@ int isInMatrix(int x, int y) {
 
 int main(int argc, char *argv[]) {
 
-    char matrix_input[N][M];
-    char matrix_output[N][M];
+    char **matrix_input = allocMatrix(N,M);
+    char **matrix_output = allocMatrix(N,M);
 
     srand((unsigned)0);
     int i,j;
@@ -108,13 +109,13 @@ int main(int argc, char *argv[]) {
 
     clock_t end = clock();
     double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
-    printf("\nMatrice risultante\n");
+   /* printf("\nFinal Matrix\n");
     for (i = 0; i < N; i++) {
         for (j = 0; j < M; j++) {
             printf("%c", matrix_output[i][j]);
         }
         printf("\n");
-    }
+    }*/
     printf("Time elapsed: %fs\n", time_spent);
 
     return 0;
