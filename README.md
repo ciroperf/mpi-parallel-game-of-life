@@ -27,5 +27,38 @@ La configurazione iniziale costituisce il seed del sistema. La prima generazione
 
 ## Soluzione proposta
 
+Per il problema sono stati utilizzati due approcci:
+- un programma funzionante su un singolo core che non usa librerie di OpenMPI
+- un programma che sfrutta il parallelismo utilizzando le librerie di OpenMPI
+
+Prima di spiegare le soluzioni adottate al problema bisogna anche considerare che a ogni iterazione del programma, nella matrice di caratteri utilizzata come seed, la riga della matrice alla posizione 0 e la riga alla posizione N-1 (dove N è il numero delle righe totali) sono considerate come vicine, quindi si influenzano a vicenda ad ogni generazione, creando una struttura toroidale. 
+Il [primo](Code/OneThread.c) ha un approccio più semplice al problema, generando un seed iniziale casuale e poi applicando le regole ad ogni cella fino a che non si raggiunge il numero di generazioni date in input. Dopo ogni passo viene aggiornata la matrice in output finchè non si arriva al numero di passi inserito.
+Il [secondo](Code/Game.c) offre una soluzione più complessa, in quanto il problema viene diviso equamente dal master che manda le porzioni di matrice agli altri processori, facilitando così l'esecuzione del programma su matrici di grandi dimensioni, e ognuno di essi elabora gli input applicando le regole. Successivamente vengono mandati i bordi ai processori adiacenti. Una volta eseguite il numero di generazioni richieste, il processore con il rank 0, che partecipa anche'esso alla computazione, raccoglie i dati di tutti gli altri processori e inserisce i risultati nella matrice che viene poi data in output.
+
+## Struttura del progetto
+
+Verrà analizzato nel dettaglio la struttura di [Game.c](Code/Game.c) analizzando gli aspetti cruciali della soluzione al problema.
+
+### Funzioni MPI
+
+Le funzioni di MPI usate oltre quelle fondamentali sono:
+- MPI_Isend
+- MPI_Irecv
+- MPI_Wait
+Sono state usate queste funzioni per sfruttare la comunicazione non bloccante, in quanto dopo che il master ha suddiviso e mandato gli input agli altri processori questi già possono elaborare le porzioni interne prima che ricevano i bordi dai processori adiacenti, velocizzando così il processo di computazione.
+
+### Sezioni di codice
+
+` 
+MPI_Isend(&borders[0][0], M, MPI_CHAR, source, tag, MPI_COMM_WORLD, &request_send);
+MPI_Isend(&borders[1][0], M, MPI_CHAR, dest, tag, MPI_COMM_WORLD, &request_send);
+MPI_Irecv(&borders_received[0][0], M, MPI_CHAR, source, tag, MPI_COMM_WORLD, &request_receive);
+MPI_Irecv(&borders_received[1][0], M, MPI_CHAR, dest, tag, MPI_COMM_WORLD, &request_receive1);
+`
+
+
+
+
+
 
 
