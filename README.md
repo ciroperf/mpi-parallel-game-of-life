@@ -31,8 +31,8 @@ Per il problema sono stati utilizzati due approcci:
 - un programma funzionante su un singolo core che non usa librerie di OpenMPI
 - un programma che sfrutta il parallelismo utilizzando le librerie di OpenMPI
 
-Prima di spiegare le soluzioni adottate al problema bisogna anche considerare che a ogni iterazione del programma, nella matrice di caratteri utilizzata come seed, la riga della matrice alla posizione 0 e la riga alla posizione N-1 (dove N è il numero delle righe totali) sono considerate come vicine, quindi si influenzano a vicenda ad ogni generazione, creando una struttura toroidale. 
-Il [primo](Code/OneThread.c) ha un approccio più semplice al problema, generando un seed iniziale casuale e poi applicando le regole ad ogni cella fino a che non si raggiunge il numero di generazioni date in input. Dopo ogni passo viene aggiornata la matrice in output finchè non si arriva al numero di passi inserito.
+Prima di spiegare le soluzioni adottate al problema bisogna anche considerare che a ogni iterazione del programma, nella matrice di caratteri utilizzata come seed, la riga della matrice alla posizione 0 e la riga alla posizione N-1 (dove N è il numero delle righe totali) sono considerate come vicine, quindi si influenzano a vicenda ad ogni generazione, creando una struttura toroidale. <br />
+Il [primo](Code/OneThread.c) ha un approccio più semplice al problema, generando un seed iniziale casuale e poi applicando le regole ad ogni cella fino a che non si raggiunge il numero di generazioni date in input. Dopo ogni passo viene aggiornata la matrice in output finchè non si arriva al numero di passi inserito. <br />
 Il [secondo](Code/Game.c) offre una soluzione più complessa, in quanto il problema viene diviso equamente dal master che manda le porzioni di matrice agli altri processori, facilitando così l'esecuzione del programma su matrici di grandi dimensioni, e ognuno di essi elabora gli input applicando le regole. Successivamente vengono mandati i bordi ai processori adiacenti. Una volta eseguite il numero di generazioni richieste, il processore con il rank 0, che partecipa anche'esso alla computazione, raccoglie i dati di tutti gli altri processori e inserisce i risultati nella matrice che viene poi data in output.
 
 ## Struttura del progetto
@@ -49,16 +49,78 @@ Sono state usate queste funzioni per sfruttare la comunicazione non bloccante, i
 
 ### Sezioni di codice
 
-` 
+In tutti i processi vengono mandati e poi ricevuti i bordi della matrice in comunicazione non bloccante, in modo che possano essere eseguite altre istruzioni.
+
+```
 MPI_Isend(&borders[0][0], M, MPI_CHAR, source, tag, MPI_COMM_WORLD, &request_send);
 MPI_Isend(&borders[1][0], M, MPI_CHAR, dest, tag, MPI_COMM_WORLD, &request_send);
 MPI_Irecv(&borders_received[0][0], M, MPI_CHAR, source, tag, MPI_COMM_WORLD, &request_receive);
 MPI_Irecv(&borders_received[1][0], M, MPI_CHAR, dest, tag, MPI_COMM_WORLD, &request_receive1);
-`
+```
 
+Se il numero delle righe presenti nel buffer di ricezione è maggiore di 2 allora si possono aggiornare le righe interne della matrice nel mentre il processo non riceve i bordi dagli altri.
 
+```
+if(n > 2) {
+  interior = 1;
+  for (i = 2; i < n; i++) {
+    for (j = 0; j < M; j++) {
+      for(d = 0; d < 8; d++) {
+        x = i + directions[d].dx;
+        y = j + directions[d].dy;
+        if (isInMatrix(x,y)) {
+          if (temp[x][y] == 'd') {
+            cells_dead++;
+          } else if(temp[x][y] == 'a') {
+            cells_alive++;
+          }
+          }
+        }
+        buffer[k][j] = cellChecker(temp[i][j], cells_alive, cells_dead);
+        cells_dead = 0;
+        cells_alive = 0;
+        }
+    k++;
+  }
+}
+```
 
+Il processo rimane in attesa che le receive concludino.
 
+```
+MPI_Wait(&request_receive, &status);
+MPI_Wait(&request_receive1, &status);
+```
+
+Una volta ricevuti i bordi e computate le sezioni interessate, vengono aggiornati i bordi da mandare alla prossima iterazione. Se il numero di passi è superiore a quello inserito dall'utente, il processo manda le informazioni al rank 0 e termina.
+
+```
+for (i = 0; i < M; i++) {
+  borders[0][i] = buffer[0][i];
+}
+        
+if (n > 1) {                
+  for (i = 0; i < M; i++)
+  borders[1][i] = buffer[n-1][i];
+} else {
+  for (i = 0; i < M; i++)
+  borders[1][i] = buffer[0][i];
+}
+
+step++;
+
+if (step >= STEPS) {
+  tag = 1;
+  MPI_Send(&(buffer[0][0]), n*M, MPI_CHAR, 0, tag, MPI_COMM_WORLD);
+  free(temp[0]);
+  ...
+  break;
+}
+```
+
+## Analisi delle prestazioni
+
+I test sono stati eseguiti su 8 macchine m4.large su AWS, ognuna con 2 core a disposizione e 8 GB di RAM.
 
 
 
