@@ -137,12 +137,12 @@ Per la scalabilità forte sono stati eseguiti i test su 3 matrici di dimensioni 
 <img style="float: center;" src="Test-results/S100.png" max-width= "33%" display = "block">
 <img style="float: right;" src="Test-results/T100.png" max-width= "33%" display = "block">
 
-#### Matrice 2000x2100, 200 step
+#### Matrice 2000x2200, 200 step
 <img style="float: left;" src="Test-results/SS200.png"  max-width= "33%" display = "block">
 <img style="float: center;" src="Test-results/S200.png" max-width= "33%" display = "block">
 <img style="float: right;" src="Test-results/T200.png" max-width= "33%" display = "block">
 
-#### Matrice 3000x3100, 300 step
+#### Matrice 3000x3300, 300 step
 <img style="float: left;" src="Test-results/SS300.png"  max-width= "33%" display = "block">
 <img style="float: center;" src="Test-results/S300.png" max-width= "33%" display = "block">
 <img style="float: right;" src="Test-results/T300.png" max-width= "33%" display = "block">
