@@ -120,11 +120,11 @@ if (step >= STEPS) {
 
 ## Analisi delle prestazioni
 
-I test sono stati eseguiti su 8 macchine m4.large su AWS, ognuna con 2 core a disposizione e 8 GB di RAM.
+I test sono stati eseguiti su 8 macchine m4.large su AWS, ognuna con 2 core a disposizione e 8 GB di RAM. I tempi di esecuzione con un processore sono stati calcolati usando il programma [**OneThread.c**](Code/OneThread.c)
 
 ### Scalabilità debole
 
-Per la scalabilità debole sono stati eseguiti dei test aumentando gradualmente la taglia, cioè il numero delle righe e delle colonne delle matrici. Il numero di step (100) è uguale.
+Per la scalabilità debole sono stati eseguiti dei test aumentando gradualmente la taglia, cioè il numero delle righe e delle colonne delle matrici. Il numero di step (100) è uguale. Il numero di righe della matrice parte da 500 e il numero di colonne da 600 per la computazione su un singolo processoree e sono stati moltiplicati questi valori per il numero di processori usati per ottenere le taglie incrementate.
 
 ![Scalabilità debole](Test-results/WS.png)
 
@@ -133,10 +133,46 @@ Per la scalabilità debole sono stati eseguiti dei test aumentando gradualmente 
 Per la scalabilità forte sono stati eseguiti i test su 3 matrici di dimensioni differenti e cambiando anche il numero degli step. Verranno mostrati anche i grafici relativi allo speedup ottenuto e ai tempi di esecuzione.
 
 #### Matrice 1000x1100, 100 step
+<img style="float: left;" src="Test-results/SS100.png"  max-width= "33%" display = "block">
+<img style="float: center;" src="Test-results/S100.png" max-width= "33%" display = "block">
+<img style="float: right;" src="Test-results/T100.png" max-width= "33%" display = "block">
 
-![image alt <](Test-results/SS100.png)
-![image alt ><](Test-results/S100.png)
-![image alt >](Test-results/T100.png)
+#### Matrice 2000x2100, 200 step
+<img style="float: left;" src="Test-results/SS200.png"  max-width= "33%" display = "block">
+<img style="float: center;" src="Test-results/S200.png" max-width= "33%" display = "block">
+<img style="float: right;" src="Test-results/T200.png" max-width= "33%" display = "block">
 
+#### Matrice 3000x3100, 300 step
+<img style="float: left;" src="Test-results/SS300.png"  max-width= "33%" display = "block">
+<img style="float: center;" src="Test-results/S300.png" max-width= "33%" display = "block">
+<img style="float: right;" src="Test-results/T300.png" max-width= "33%" display = "block">
 
+## Istruzioni di esecuzione
+
+Per eseguire il programma [**OneThread.c**](Code/OneThread.c), bisogna compilare il file con il comando *gcc* ed eseguire l'eseguibile generato.
+
+Per eseguire sul cluster [**Game.c**](Code/Game.c) bisogna:
+- compilare il file con *mpicc Game.c -o game*
+- creare un hostfile con i riferimenti alle macchine che devono essere usate per la computazione ma è opzionale a seconda delle esigenze.
+- Il comando da utilizzare per avviare il programma è *mpirun -np NUMERO_DI_PROCESSORI --hostifle hfile ./game RIGHE COLONNE PASSI*
+
+È importante notare che il programma non funziona con un solo processore e i parametri aggiuntivi sono obbligatori.
+
+- **NUMERO_DI_PROCESSORI**
+È il numero di processori che MPI userà per l'esecuzione
+
+- **RIGHE**
+È il numero di righe che avrà la matrice utilizzata
+
+- **COLONNE**
+È il numero di colonne che avrà la matrice utilizzata
+
+- **PASSI**
+È il numero iterazioni che verranno effettuate sulla matrice
+
+## Considerazioni finali
+
+In termini di scalabilità debole, il programma ha ottenuto delle performance discrete, in quanto la computazione sfrutta molto le risorse in termini di CPU poiché per ogni cella aggiunta bisogna analizzare tutte le celle adiacenti per determinare lo stato nella generazione successiva. Quindi aumentare la taglia della matrice fa degradare di molto le performance, anche se sfruttando molti processori le prestazioni tendono a stabilizzarsi.
+
+Per quanto riguarda la scalabilità forte, i risultati ottenuti sono ottimi, in quanto si è ottenuto un alto grado di scalabilità e tempi di esecuzione molto bassi. Quindi l'utilizzo della computazione parallela si dimostra altamente efficace per la risoluzione di questo problema.
 
