@@ -22,6 +22,8 @@ Ad ogni esecuzione vengono determinati un numero di passi, a ciascun passo nel t
 
 La configurazione iniziale costituisce il seed del sistema. La prima generazione viene creata applicando tutte le regole precedenti simultaneamente a ciascuna cella del seed iniziale. Ciascuna generazione successiva viene creata solo in funzione di quella precedente, continuando ad applicare le regole.
 
+![Definizione del problema](Gospers_glider_gun.gif)
+
 ## Soluzione proposta
 
 
