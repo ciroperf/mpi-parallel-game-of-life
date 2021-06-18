@@ -85,11 +85,6 @@ int main(int argc, char** argv) {
 
     MPI_Init(&argc, &argv);
 
-    N = atoi(argv[1]);
-    M = atoi(argv[2]);
-    STEPS = atoi(argv[3]);
-
-
     struct {
         int dx;
         int dy;
@@ -104,6 +99,18 @@ int main(int argc, char** argv) {
     MPI_Request request_send = MPI_REQUEST_NULL;
     MPI_Request request_receive = MPI_REQUEST_NULL;
     MPI_Request request_receive1 = MPI_REQUEST_NULL;
+
+    if (argc != 4) {
+        if (world_rank == 0)
+            printf("USAGE: ROWS COLUMNS STEPS\n");
+        MPI_Finalize();
+        return 0;
+    }
+
+    N = atoi(argv[1]);
+    M = atoi(argv[2]);
+    STEPS = atoi(argv[3]);
+
 
     if (world_size > N && world_rank == 0) {
         printf("Impossible to execute with a number of processor greater than the number of rows\n");
@@ -568,6 +575,6 @@ int main(int argc, char** argv) {
 
     if (world_rank == 0) {
         printf("\nEnded\n");
-        printf("Time: %1.3fs\n", etime);
+        printf("Time: %1.2f\n", etime);
     }
 }
