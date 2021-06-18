@@ -74,12 +74,12 @@ if(n > 2) {
           } else if(temp[x][y] == 'a') {
             cells_alive++;
           }
-          }
-        }
-        buffer[k][j] = cellChecker(temp[i][j], cells_alive, cells_dead);
-        cells_dead = 0;
-        cells_alive = 0;
-        }
+         }
+       }
+       buffer[k][j] = cellChecker(temp[i][j], cells_alive, cells_dead);
+       cells_dead = 0;
+       cells_alive = 0;
+     }
     k++;
   }
 }
@@ -121,6 +121,22 @@ if (step >= STEPS) {
 ## Analisi delle prestazioni
 
 I test sono stati eseguiti su 8 macchine m4.large su AWS, ognuna con 2 core a disposizione e 8 GB di RAM.
+
+### Scalabilità debole
+
+Per la scalabilità debole sono stati eseguiti dei test aumentando gradualmente la taglia, cioè il numero delle righe e delle colonne delle matrici. Il numero di step (100) è uguale.
+
+![Scalabilità debole](Test-results/WS.png)
+
+### Scalabilità forte
+
+Per la scalabilità forte sono stati eseguiti i test su 3 matrici di dimensioni differenti e cambiando anche il numero degli step. Verranno mostrati anche i grafici relativi allo speedup ottenuto e ai tempi di esecuzione.
+
+#### Matrice 1000x1100, 100 step
+
+![image alt <](Test-results/SS100.png)
+![image alt ><](Test-results/S100.png)
+![image alt >](Test-results/T100.png)
 
 
 
