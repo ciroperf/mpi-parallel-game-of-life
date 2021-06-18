@@ -172,7 +172,7 @@ Per eseguire sul cluster [**Game.c**](Code/Game.c) bisogna:
 
 ## Considerazioni finali
 
-In termini di scalabilità debole, il programma ha ottenuto delle performance discrete, in quanto la computazione sfrutta molto le risorse in termini di CPU poiché per ogni cella aggiunta bisogna analizzare tutte le celle adiacenti per determinare lo stato nella generazione successiva. Quindi aumentare la taglia della matrice fa degradare di molto le performance, anche se sfruttando molti processori le prestazioni tendono a stabilizzarsi.
+In termini di scalabilità debole, il programma ha ottenuto delle performance discrete, in quanto la computazione sfrutta molto le risorse in termini di CPU poiché per ogni cella aggiunta bisogna analizzare tutte le celle adiacenti per determinarne lo stato nella generazione successiva. Quindi aumentare la taglia della matrice fa degradare di molto le performance, anche se sfruttando molti processori le prestazioni tendono a stabilizzarsi.
 
 Per quanto riguarda la scalabilità forte, i risultati ottenuti sono ottimi, in quanto si è ottenuto un alto grado di scalabilità e tempi di esecuzione molto bassi. Quindi l'utilizzo della computazione parallela si dimostra altamente efficace per la risoluzione di questo problema.
 
