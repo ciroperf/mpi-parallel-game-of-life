@@ -124,7 +124,7 @@ I test sono stati eseguiti su 8 macchine m4.large su AWS, ognuna con 2 core a di
 
 ### Scalabilità debole
 
-Per la scalabilità debole sono stati eseguiti dei test aumentando gradualmente la taglia, cioè il numero delle righe e delle colonne delle matrici. Il numero di step (100) è uguale. Il numero di righe della matrice parte da 500 e il numero di colonne da 600 per la computazione su un singolo processoree e sono stati moltiplicati questi valori per il numero di processori usati per ottenere le taglie incrementate.
+Per la scalabilità debole sono stati eseguiti dei test aumentando gradualmente la taglia, cioè il numero delle righe e delle colonne delle matrici. Il numero di step (100) è uguale. Il numero di righe della matrice parte da 500 e il numero di colonne da 600 per la computazione su un singolo processore e sono stati moltiplicati questi valori per il numero di processori usati per ottenere le taglie incrementate.
 
 ![Scalabilità debole](Test-results/WS.png)
 
